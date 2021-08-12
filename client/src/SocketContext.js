@@ -13,6 +13,7 @@ const ContextProvider = ({ children }) =>{
   const [call, setCall] = useState({})
   const [callAccepted, setCallAccepted] = useState(false)
   const [callEnded, setCallEnded] = useState(false)
+  const [name, setName] = useState('')
 
 
   const myVideo = useRef();
@@ -57,8 +58,27 @@ const ContextProvider = ({ children }) =>{
     connectionRef.current = peer;
   }
 
-  const callUser = () => {
+  const callUser = (id) => {
+    // set peer initiator to true because we are the person calling
+    const peer = new Peer({ initiator: true, trickle: false, stream });
 
+    peer.on('signal', (data) =>{
+      // establish video connection
+      socket.emit('calluser', { useToCall: id, signalData: data, from: me, name });
+    })
+
+    // set other users video
+    peer.on('stream', (currentStream)=>{
+      userVideo.current.srcObject = currentStream;
+    })
+
+    socket.on('callaccpeted', (signal) =>{
+      setCallAccepted(true)
+
+      peer.signal(signal)
+    })
+
+    connectionRef.current = peer;
   }
 
   const leaveCall = () => {
