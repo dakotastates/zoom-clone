@@ -35,7 +35,8 @@ const ContextProvider = ({ children }) =>{
 
     socket.on('calluser', ({ from, name: callerName, signal }) => {
       setCall({ isReceivedCall: true, from, name: callerName, signal})
-    })
+    });
+
   }, []);
 
   const answerCall = () =>{
@@ -64,7 +65,7 @@ const ContextProvider = ({ children }) =>{
 
     peer.on('signal', (data) =>{
       // establish video connection
-      socket.emit('calluser', { useToCall: id, signalData: data, from: me, name });
+      socket.emit('calluser', { userToCall: id, signalData: data, from: me, name });
     })
 
     // set other users video
@@ -72,9 +73,8 @@ const ContextProvider = ({ children }) =>{
       userVideo.current.srcObject = currentStream;
     })
 
-    socket.on('callaccpeted', (signal) =>{
+    socket.on('callaccepted', (signal) =>{
       setCallAccepted(true)
-
       peer.signal(signal)
     })
 
